@@ -5,6 +5,7 @@ from app.booking.schemas import SBooking
 from app.booking.dao import BookingDAO
 from app.user.dependencies import get_current_user
 from app.user.models import Users
+from app.exeptions import RoomCanNotBeBooked
 
 router = APIRouter(
     prefix='/booking',
@@ -23,4 +24,6 @@ async def add_booking(
         room_id: int, date_from: date, date_to: date,
         user: Users = Depends(get_current_user),
     ): 
-        await BookingDAO.add(user.id, room_id, date_from, date_to)
+        booking = await BookingDAO.add(user.id, room_id, date_from, date_to)
+        if not booking:
+            raise RoomCanNotBeBooked

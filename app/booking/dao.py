@@ -1,5 +1,5 @@
 from datetime import date
-from sqlalchemy import func, select, and_, or_
+from sqlalchemy import func, insert, select, and_, or_
 
 from app.database import async_session_maker
 from app.booking.models import Booking
@@ -47,4 +47,24 @@ class BookingDAO(BaseDAO):
             print(rooms_left.compile(engine, compile_kwargs={'literal_binds': True}))
 
             rooms_left = await session.execute(rooms_left)
-            print(rooms_left.scalar())
+            rooms_left: int = rooms_left.scalar()
+            print(rooms_left)
+            return rooms_left
+            if rooms_left > 0:
+                get_price = select(Rooms.price).filter_by(id=room_id)
+                price = await session.execute(get_price)
+                price: int = price.scalar()
+                add_booking = insert(Booking).values(
+                    room_id=room_id,
+                    user_id=user_id,
+                    date_from=date_from,
+                    date_to=date_to,
+                    price=price,
+                ).returning(Booking)
+
+                new_booking = await session.execute(add_booking)
+                await session.commit()
+                return new_booking.scalar()
+
+            else:
+                return None

@@ -26,3 +26,8 @@ AbsentTokenExeption = HTTPException(
 )
 
 UserIsNotPresentExeption = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+RoomCanNotBeBooked = HTTPException(
+    status_code=status.HTTP_409_CONFLICT,
+    detail='No rooms anymore'
+)
